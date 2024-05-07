@@ -55,8 +55,8 @@ local function create_window()
 
   local win_config = {
     title = "Buffers",
-    line = math.floor(((vim.o.lines - height) / 2) - 1),
-    col = math.floor((vim.o.columns - width) / 2),
+    line = vim.o.lines - height,
+    col = 0,
     minwidth = width,
     minheight = height,
     borderchars = borderchars,
@@ -243,7 +243,7 @@ local function set_menu_keybindings()
       Buffer_manager_bufh,
       "n",
       value.key,
-      "<Cmd>lua require('buffer_manager.ui').select_menu_item('"..value.command.."')<CR>",
+      "<Cmd>lua require('buffer_manager.ui').select_menu_item('" .. value.command .. "')<CR>",
       {}
     )
   end
@@ -254,12 +254,12 @@ local function set_menu_keybindings()
     )
   )
   vim.cmd(
-    "autocmd BufLeave <buffer> ++nested ++once silent"..
+    "autocmd BufLeave <buffer> ++nested ++once silent" ..
     " lua require('buffer_manager.ui').toggle_quick_menu()"
   )
   vim.cmd(
     string.format(
-      "autocmd BufWriteCmd <buffer=%s>"..
+      "autocmd BufWriteCmd <buffer=%s>" ..
       " lua require('buffer_manager.ui').on_menu_save()",
       Buffer_manager_bufh
     )
@@ -267,13 +267,13 @@ local function set_menu_keybindings()
   -- Go to file hitting its line number
   local str = config.line_keys
   for i = 1, #str do
-    local c = str:sub(i,i)
+    local c = str:sub(i, i)
     vim.api.nvim_buf_set_keymap(
       Buffer_manager_bufh,
       "n",
       c,
       string.format(
-        "<Cmd>%s <bar> lua require('buffer_manager.ui')"..
+        "<Cmd>silent! %s <bar> lua require('buffer_manager.ui')" ..
         ".select_menu_item()<CR>",
         i
       ),
@@ -358,9 +358,9 @@ function M.toggle_quick_menu()
         end
       end
       if config.show_indicators == 'before' then
-         contents[line] = string.format("      %s", display_filename)
+        contents[line] = string.format("      %s", display_filename)
       else
-         contents[line] = string.format("%s", display_filename)
+        contents[line] = string.format("%s", display_filename)
       end
       line = line + 1
     end
@@ -422,7 +422,7 @@ function M.toggle_quick_menu()
             Buffer_manager_bufh,
             -1,
             "BufferManagerModified",
-            idx-1,
+            idx - 1,
             0,
             -1
           )
@@ -452,7 +452,6 @@ function M.toggle_quick_menu()
   end
 end
 
-
 function M.select_menu_item(command)
   local idx = vim.fn.line(".")
   if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
@@ -462,7 +461,6 @@ function M.select_menu_item(command)
   M.nav_file(idx, command)
   update_buffers()
 end
-
 
 local function get_menu_items()
   log.trace("_get_menu_items()")
@@ -510,7 +508,6 @@ function M.on_menu_save()
   log.trace("on_menu_save()")
   set_mark_list(get_menu_items())
 end
-
 
 function M.nav_file(id, command)
   log.trace("nav_file(): Navigating to", id)
@@ -562,7 +559,6 @@ function M.nav_next()
   end
 end
 
-
 function M.nav_prev()
   log.trace("nav_prev()")
   update_marks()
@@ -573,13 +569,12 @@ function M.nav_prev()
   local prev_buf_line = current_buf_line - 1
   if prev_buf_line < 1 then
     if config.loop_nav then
-        M.nav_file(#marks)
+      M.nav_file(#marks)
     end
   else
     M.nav_file(prev_buf_line)
   end
 end
-
 
 function M.location_window(options)
   local default_options = {
@@ -601,7 +596,6 @@ function M.location_window(options)
   }
 end
 
-
 function M.save_menu_to_file(filename)
   log.trace("save_menu_to_file()")
   if filename == nil or filename == "" then
@@ -620,7 +614,6 @@ function M.save_menu_to_file(filename)
   end
   file:close()
 end
-
 
 function M.load_menu_from_file(filename)
   log.trace("load_menu_from_file()")
@@ -643,6 +636,5 @@ function M.load_menu_from_file(filename)
   set_mark_list(lines)
   update_buffers()
 end
-
 
 return M
