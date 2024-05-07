@@ -4,7 +4,7 @@ local popup = require("plenary.popup")
 local utils = require("buffer_manager.utils")
 local log = require("buffer_manager.dev").log
 local marks = require("buffer_manager").marks
-
+local webdevicons = require('nvim-web-devicons')
 
 local M = {}
 
@@ -362,6 +362,12 @@ function M.toggle_quick_menu()
       else
         contents[line] = string.format("%s", display_filename)
       end
+
+      if config.show_icons == 'before' then
+        contents[line] = string.format("  %s", display_filename)
+      else
+        contents[line] = string.format("%s", display_filename)
+      end
       line = line + 1
     end
   end
@@ -441,6 +447,34 @@ function M.toggle_quick_menu()
             0,
             {
               virt_text = { { indicators, "Comment" } },
+              -- Position: beginning of line, with padding
+              virt_text_pos = virt_text_pos,
+              hl_mode = "combine",
+            }
+          )
+        end
+
+
+        if config.show_icons then
+          local virt_text_pos = "eol"
+          if config.show_icons == "before" then
+            virt_text_pos = "overlay"
+          end
+          local filename = marks[idx].filename
+          local file_extension = filename:match("%.([^%.]+)$")
+          if (file_extension) then
+            file_extension = file_extension:gsub("%W", "_") -- This will replace any character that is not a letter or a digit with an underscore, ensuring that `line_filetype` is always a valid group name.
+          end
+
+          local icon, color = webdevicons.get_icon_color(filename, file_extension)
+          vim.api.nvim_command('highlight BufferManager_' .. file_extension .. ' guifg=' .. color) -- highlight Icon in color
+          vim.api.nvim_buf_set_extmark(
+            Buffer_manager_bufh,
+            ns_id,
+            idx - 1,
+            0,
+            {
+              virt_text = { { icon, "BufferManager_" .. file_extension } },
               -- Position: beginning of line, with padding
               virt_text_pos = virt_text_pos,
               hl_mode = "combine",
