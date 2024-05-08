@@ -54,7 +54,6 @@ local function create_window()
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local win_config = {
-    title = "Buffers",
     line = vim.o.lines - height,
     col = 0,
     minwidth = width,
